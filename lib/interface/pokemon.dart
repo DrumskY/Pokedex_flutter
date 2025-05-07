@@ -127,11 +127,28 @@ class TypeSlot {
 
 class Sprites {
   final String frontDefault;
+  final Other? other;
 
-  Sprites({required this.frontDefault});
+  Sprites({required this.frontDefault, this.other});
 
   factory Sprites.fromJson(Map<String, dynamic> json) {
-    return Sprites(frontDefault: json['front_default'] ?? '');
+    return Sprites(
+      frontDefault: json['front_default'] ?? '',
+      other:
+          json['other'] != null && json['other']['official-artwork'] != null
+              ? Other.fromJson(json['other']['official-artwork'])
+              : null,
+    );
+  }
+}
+
+class Other {
+  final String frontDefault;
+
+  Other({required this.frontDefault});
+
+  factory Other.fromJson(Map<String, dynamic> json) {
+    return Other(frontDefault: json['front_default'] ?? '');
   }
 }
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pokedex/widgets/main_app_bar.dart';
 import 'package:flutter_pokedex/components/pokemon-type_colors.dart';
+import 'package:flutter_svg/svg.dart';
 
 import '../interface/pokemon.dart' as my_pokemon;
 
@@ -27,14 +28,101 @@ class PokemonDetailsPage extends StatelessWidget {
         children: [
           Positioned(
             top: 50,
-            left: 10,
-            child: GestureDetector(
-              child: IconButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                icon: Icon(Icons.arrow_back, color: Colors.white),
-              ),
+            left: 15,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.pop(context);
+                      },
+                      child: Padding(
+                        padding: EdgeInsets.only(
+                          right: 25.0,
+                        ), // tutaj ustawiasz odstęp z prawej
+                        child: Icon(Icons.arrow_back, color: Colors.white),
+                      ),
+                    ),
+                    Text(
+                      'Details',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 25,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.5,
+                      ),
+                    ),
+                  ],
+                ),
+                Text(
+                  pokemon.id < 100
+                      ? pokemon.id < 10
+                          ? "#00${pokemon.id}"
+                          : "#0${pokemon.id}"
+                      : '"#${pokemon.id}"',
+                  style: TextStyle(
+                    color: const Color.fromARGB(255, 221, 221, 221),
+                    fontSize: 25,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  pokemonName,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 35,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(height: 10),
+                Wrap(
+                  alignment: WrapAlignment.center,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: 8,
+                  children:
+                      pokemon.types!.map((type) {
+                        return Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              height: 48,
+                              width: 48,
+                              decoration: BoxDecoration(
+                                color: pokemonTypeColors[type] ?? Colors.grey,
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    // ignore: deprecated_member_use
+                                    color: Colors.black.withOpacity(0.5),
+                                    blurRadius: 6,
+                                    offset: Offset(0, 3),
+                                  ),
+                                ],
+                              ),
+                              padding: EdgeInsets.all(8),
+                              child: SvgPicture.asset(
+                                'assets/types/$type.svg',
+                                fit: BoxFit.contain,
+                              ),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              type[0].toUpperCase() +
+                                  type.substring(1), // "fire" -> "Fire"
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        );
+                      }).toList(),
+                ),
+              ],
             ),
           ),
           Positioned(
@@ -56,6 +144,19 @@ class PokemonDetailsPage extends StatelessWidget {
               child: Container(
                 color: Colors.white,
                 padding: EdgeInsets.only(top: 00),
+              ),
+            ),
+          ),
+          Align(
+            alignment: Alignment.topRight,
+            child: Padding(
+              padding: const EdgeInsets.only(top: 50),
+              child: Image.network(
+                (pokemon.sprites.other?.frontDefault?.isNotEmpty ?? false)
+                    ? pokemon.sprites.other!.frontDefault
+                    : pokemon.sprites.frontDefault,
+                width: 250,
+                height: 250,
               ),
             ),
           ),
