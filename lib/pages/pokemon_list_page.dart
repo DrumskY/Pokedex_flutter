@@ -367,9 +367,9 @@ class _PokemonListPageState extends State<PokemonListPage> {
                           capitalize(pokemon.name),
                           style: const TextStyle(
                             fontSize: 20,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w400,
                             letterSpacing: 1.2,
-                            color: Colors.black,
+                            color: Colors.black54,
                           ),
                         ),
                         Row(

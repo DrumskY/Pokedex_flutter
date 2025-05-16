@@ -29,18 +29,18 @@ class MainWidget extends StatelessWidget {
         textTheme: const TextTheme(
           headlineSmall: TextStyle(
             fontSize: 24,
-            fontWeight: FontWeight.w900,
+            fontWeight: FontWeight.w200,
             color: Colors.black87,
           ),
           bodyMedium: TextStyle(
             fontSize: 16,
             color: Colors.black87,
-            fontWeight: FontWeight.w700,
+            fontWeight: FontWeight.w300,
           ),
           labelLarge: TextStyle(
             fontSize: 14,
             color: Colors.black87,
-            fontWeight: FontWeight.w700,
+            fontWeight: FontWeight.w200,
           ),
         ),
         iconTheme: const IconThemeData(

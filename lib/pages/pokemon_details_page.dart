@@ -62,7 +62,7 @@ class PokemonDetailsPage extends StatelessWidget {
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 25,
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w500,
                                 letterSpacing: 1.5,
                               ),
                             ),
@@ -77,7 +77,7 @@ class PokemonDetailsPage extends StatelessWidget {
                           style: TextStyle(
                             color: const Color.fromARGB(255, 221, 221, 221),
                             fontSize: 25,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                         Text(
@@ -85,7 +85,7 @@ class PokemonDetailsPage extends StatelessWidget {
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 35,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                         SizedBox(height: 10),
@@ -129,7 +129,7 @@ class PokemonDetailsPage extends StatelessWidget {
                                       style: TextStyle(
                                         color: Colors.white,
                                         fontSize: 12,
-                                        fontWeight: FontWeight.bold,
+                                        fontWeight: FontWeight.w500,
                                       ),
                                     ),
                                   ],
@@ -183,87 +183,161 @@ class PokemonDetailsPage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Color(0xFFF8F8F8),
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: backgroundColor,
-                          blurRadius: 12,
-                          offset: Offset(0, 6),
-                        ),
-                      ],
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'About',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: backgroundColor,
-                            ),
-                          ),
-                          SizedBox(height: 8),
-                          Text(
-                            'To jest przykładowy tekst pod tytułem. Możesz tutaj dodać opis lub inne informacje.',
-                            style: TextStyle(
-                              fontSize: 15,
-                              color: Colors.black54,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-
+                  _pokemonAbout(backgroundColor),
                   SizedBox(height: 25),
-
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Color(0xFFF8F8F8),
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: backgroundColor,
-                          blurRadius: 12,
-                          offset: Offset(0, 6),
-                        ),
-                      ],
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Stats',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: backgroundColor,
-                            ),
-                          ),
-                          SizedBox(height: 8),
-                          Text(
-                            'To jest przykładowy tekst pod tytułem. Możesz tutaj dodać opis lub inne informacje.',
-                            style: TextStyle(
-                              fontSize: 15,
-                              color: Colors.black54,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  // Dodaj więcej zawartości wedle potrzeb
+                  _pokemonStats(pokemon.stats, backgroundColor),
                 ],
               ),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _pokemonAbout(backgroundColor) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Color(0xFFF8F8F8),
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: backgroundColor,
+            blurRadius: 12,
+            offset: Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'About',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
+                color: backgroundColor,
+              ),
+            ),
+            SizedBox(height: 8),
+            Row(
+              children: [
+                Text(
+                  'Height: ',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.black54,
+                    fontWeight: FontWeight.w300,
+                  ),
+                ),
+                Text(
+                  '${(pokemon.height! * 10).toStringAsFixed(1)}cm',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: const Color.fromARGB(137, 0, 0, 0),
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+            Row(
+              children: [
+                Text(
+                  'Weight: ',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w300,
+                    color: Colors.black54,
+                  ),
+                ),
+                Text(
+                  '${(pokemon.weight! / 10).toStringAsFixed(1)}kg',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: const Color.fromARGB(137, 0, 0, 0),
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _pokemonStats(pokemonStats, backgroundColor) {
+    final List stats = pokemonStats;
+    return Container(
+      decoration: BoxDecoration(
+        color: Color(0xFFF8F8F8),
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: backgroundColor,
+            blurRadius: 12,
+            offset: Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Stats',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
+                color: backgroundColor,
+              ),
+            ),
+            SizedBox(height: 8),
+            ...stats.map<Widget>((stat) {
+              final String name = stat.stat.name;
+              final int value = stat.baseStat;
+              final double percentage = value / 100.0;
+              final Color progressColor;
+              if (percentage * 100 >= 70) {
+                progressColor = Colors.green;
+              } else if (percentage * 100 >= 40) {
+                progressColor = Colors.orange;
+              } else {
+                progressColor = Colors.red;
+              }
+
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 6.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '${name.toUpperCase()} - $value',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Colors.black54,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: LinearProgressIndicator(
+                        value: percentage.clamp(0.0, 1.0),
+                        minHeight: 10,
+                        backgroundColor: Colors.grey[300],
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          progressColor,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }),
           ],
         ),
       ),
