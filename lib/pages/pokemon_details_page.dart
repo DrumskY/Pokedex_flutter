@@ -62,7 +62,7 @@ class PokemonDetailsPage extends StatelessWidget {
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 25,
-                                fontWeight: FontWeight.w500,
+                                fontWeight: FontWeight.w900,
                                 letterSpacing: 1.5,
                               ),
                             ),
@@ -129,7 +129,7 @@ class PokemonDetailsPage extends StatelessWidget {
                                       style: TextStyle(
                                         color: Colors.white,
                                         fontSize: 12,
-                                        fontWeight: FontWeight.w500,
+                                        fontWeight: FontWeight.w700,
                                       ),
                                     ),
                                   ],
@@ -166,7 +166,7 @@ class PokemonDetailsPage extends StatelessWidget {
                     child: Padding(
                       padding: const EdgeInsets.only(top: 50),
                       child: Image.network(
-                        (pokemon.sprites.other?.frontDefault?.isNotEmpty ??
+                        (pokemon.sprites.other?.frontDefault.isNotEmpty ??
                                 false)
                             ? pokemon.sprites.other!.frontDefault
                             : pokemon.sprites.frontDefault,
@@ -217,7 +217,7 @@ class PokemonDetailsPage extends StatelessWidget {
               'About',
               style: TextStyle(
                 fontSize: 20,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w800,
                 color: backgroundColor,
               ),
             ),
@@ -237,7 +237,7 @@ class PokemonDetailsPage extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 14,
                     color: const Color.fromARGB(137, 0, 0, 0),
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ],
@@ -257,7 +257,7 @@ class PokemonDetailsPage extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 14,
                     color: const Color.fromARGB(137, 0, 0, 0),
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ],
@@ -291,7 +291,7 @@ class PokemonDetailsPage extends StatelessWidget {
               'Stats',
               style: TextStyle(
                 fontSize: 20,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w800,
                 color: backgroundColor,
               ),
             ),

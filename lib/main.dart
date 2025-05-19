@@ -15,13 +15,14 @@ class MainWidget extends StatelessWidget {
       theme: ThemeData(
         fontFamily: 'Nunito',
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFFE53935), // czerwony Pokéballa
+          seedColor: const Color(0xFFE53935),
           brightness: Brightness.light,
         ),
         appBarTheme: const AppBarTheme(
-          backgroundColor: Color(0xFFE53935), // czerwony pasek u góry
-          foregroundColor: Colors.white, // białe ikony i tekst
-          elevation: 4,
+          backgroundColor: Color(0xFFF9F9F9),
+          foregroundColor: Color.fromARGB(255, 221, 72, 69),
+          elevation: 0,
+          surfaceTintColor: Colors.transparent,
         ),
         scaffoldBackgroundColor: const Color(
           0xFFF9F9F9,
