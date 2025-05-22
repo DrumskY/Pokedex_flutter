@@ -5,12 +5,14 @@ import '../pages/favorites_page.dart';
 class MainAppBar extends StatefulWidget {
   final Widget body;
   final String? title;
+  final bool? searchVisible;
   final ValueChanged<String>? onSearchChanged;
 
   const MainAppBar({
     super.key,
     required this.body,
     this.title,
+    this.searchVisible,
     this.onSearchChanged,
   });
 
@@ -19,8 +21,15 @@ class MainAppBar extends StatefulWidget {
 }
 
 class _MainAppBarState extends State<MainAppBar> {
+  bool isSearchVisible = true;
   bool showSearchBar = false;
   final TextEditingController _searchController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    isSearchVisible = widget.searchVisible ?? true;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,14 +48,16 @@ class _MainAppBarState extends State<MainAppBar> {
                     fontSize: 30,
                   ),
                 ),
-                IconButton(
-                  icon: Icon(Icons.search),
-                  onPressed:
-                      () => (setState(() {
-                        widget.onSearchChanged!('');
-                        showSearchBar = !showSearchBar;
-                      })),
-                ),
+                isSearchVisible
+                    ? IconButton(
+                      icon: Icon(Icons.search),
+                      onPressed:
+                          () => (setState(() {
+                            widget.onSearchChanged!('');
+                            showSearchBar = !showSearchBar;
+                          })),
+                    )
+                    : SizedBox(),
               ],
             ),
           ],
@@ -64,8 +75,9 @@ class _MainAppBarState extends State<MainAppBar> {
           padding: EdgeInsets.zero,
           children: [
             DrawerHeader(
+              margin: EdgeInsets.zero,
               decoration: BoxDecoration(
-                color: Theme.of(context).appBarTheme.backgroundColor,
+                border: Border(bottom: Divider.createBorderSide(context)),
               ),
               child: Stack(
                 children: [

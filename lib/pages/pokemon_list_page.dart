@@ -2,10 +2,12 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_pokedex/pages/pokemon_details_page.dart' as details;
+import 'package:flutter_pokedex/widgets/favorites_icon.dart';
 import 'package:flutter_pokedex/widgets/main_app_bar.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_pokedex/components/pokemon-type_colors.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../interface/pokemon.dart';
 
@@ -21,6 +23,7 @@ class _PokemonListPageState extends State<PokemonListPage> {
   final ScrollController _scrollController = ScrollController();
   List<Pokemon> pokemonList = [];
   List<Pokemon> _filteredPokemons = [];
+  List<Pokemon> favoritePokemons = [];
   bool isLoading = false;
   int offset = 0;
   int limit = 10;
@@ -29,8 +32,13 @@ class _PokemonListPageState extends State<PokemonListPage> {
   @override
   void initState() {
     super.initState();
+    _loadFavorites();
     _loadPokemons();
     _scrollController.addListener(_onScroll);
+  }
+
+  bool isFavorite(Pokemon p) {
+    return favoritePokemons.contains(p);
   }
 
   void _onScroll() {
@@ -40,6 +48,37 @@ class _PokemonListPageState extends State<PokemonListPage> {
         hasMore) {
       _loadPokemons();
     }
+  }
+
+  Future<void> _loadFavorites() async {
+    final prefs = await SharedPreferences.getInstance();
+    final favoritesJson = prefs.getString('favorite_pokemons');
+    if (favoritesJson == null) return;
+
+    final List decoded = jsonDecode(favoritesJson);
+    setState(() {
+      favoritePokemons =
+          decoded
+              .map((e) => Pokemon.fromJson(e as Map<String, dynamic>))
+              .toList();
+    });
+  }
+
+  Future<void> _refreshFavorites() async {
+    final prefs = await SharedPreferences.getInstance();
+    final favoritesJson = prefs.getString('favorite_pokemons');
+    if (favoritesJson == null) {
+      setState(() => favoritePokemons = []);
+      return;
+    }
+
+    final List decoded = jsonDecode(favoritesJson);
+    setState(() {
+      favoritePokemons =
+          decoded
+              .map((e) => Pokemon.fromJson(e as Map<String, dynamic>))
+              .toList();
+    });
   }
 
   Future<void> _loadPokemons() async {
@@ -121,17 +160,6 @@ class _PokemonListPageState extends State<PokemonListPage> {
     super.dispose();
   }
 
-  void _filterPokemons() {
-    setState(() {
-      _filteredPokemons =
-          pokemonList.where((pokemon) {
-            return pokemon.name.toLowerCase().contains(
-              _searchQuery.toLowerCase(),
-            );
-          }).toList();
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -185,6 +213,9 @@ class _PokemonListPageState extends State<PokemonListPage> {
                             _searchQuery.isNotEmpty
                                 ? _filteredPokemons[index]
                                 : pokemonList[index];
+                        final isFav = favoritePokemons.any(
+                          (p) => p.id == pokemon.id,
+                        );
                         final backgroundColor =
                             (pokemon.types?.isNotEmpty ?? false)
                                 ? pokemonTypeColors[((pokemon.types!.length >
@@ -215,55 +246,69 @@ class _PokemonListPageState extends State<PokemonListPage> {
                                 ),
                               );
                             },
-                            child: Column(
+                            child: Stack(
                               children: [
-                                Text(
-                                  capitalize(pokemon.name),
-                                  style: const TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w400,
-                                    letterSpacing: 1.2,
-                                    color: Colors.black54,
+                                Column(
+                                  children: [
+                                    Padding(padding: EdgeInsets.only(top: 20)),
+                                    Text(
+                                      capitalize(pokemon.name),
+                                      style: const TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.w400,
+                                        letterSpacing: 1.2,
+                                        color: Colors.black54,
+                                      ),
+                                    ),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children:
+                                          pokemon.types!.map((type) {
+                                            final typeName = type.toLowerCase();
+                                            final assetPath =
+                                                'assets/types/$typeName.svg';
+
+                                            return Container(
+                                              margin:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 4,
+                                                  ),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 8,
+                                                    vertical: 4,
+                                                  ),
+                                              decoration: BoxDecoration(
+                                                color: Colors.transparent,
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
+                                              ),
+                                              child: SvgPicture.asset(
+                                                assetPath,
+                                                width: 30,
+                                                height: 30,
+                                                placeholderBuilder:
+                                                    (context) => const Icon(
+                                                      Icons.error,
+                                                      size: 24,
+                                                    ),
+                                              ),
+                                            );
+                                          }).toList(),
+                                    ),
+                                    Image.network(pokemon.sprites.frontDefault),
+                                  ],
+                                ),
+                                Positioned(
+                                  top: -5,
+                                  right: -5,
+                                  child: FavoriteIcon(
+                                    pokemon: pokemon,
+                                    isFavorite: isFav,
+                                    onChanged: _refreshFavorites,
                                   ),
                                 ),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children:
-                                      pokemon.types!.map((type) {
-                                        final typeName = type.toLowerCase();
-                                        final assetPath =
-                                            'assets/types/$typeName.svg';
-
-                                        return Container(
-                                          margin: const EdgeInsets.symmetric(
-                                            horizontal: 4,
-                                          ),
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 8,
-                                            vertical: 4,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            color:
-                                                Colors
-                                                    .transparent, // bo teraz pokazujesz obrazek
-                                            borderRadius: BorderRadius.circular(
-                                              12,
-                                            ),
-                                          ),
-                                          child: SvgPicture.asset(
-                                            assetPath,
-                                            width: 30,
-                                            height: 30,
-                                            placeholderBuilder:
-                                                (context) => const Icon(
-                                                  Icons.error,
-                                                  size: 24,
-                                                ),
-                                          ),
-                                        );
-                                      }).toList(),
-                                ),
-                                Image.network(pokemon.sprites.frontDefault),
                               ],
                             ),
                           ),
