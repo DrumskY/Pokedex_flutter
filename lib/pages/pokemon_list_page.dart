@@ -20,6 +20,7 @@ class PokemonListPage extends StatefulWidget {
 
 class _PokemonListPageState extends State<PokemonListPage> {
   String _searchQuery = '';
+  String _typeQuery = '';
   final ScrollController _scrollController = ScrollController();
   List<Pokemon> pokemonList = [];
   List<Pokemon> _filteredPokemons = [];
@@ -27,7 +28,13 @@ class _PokemonListPageState extends State<PokemonListPage> {
   bool isLoading = false;
   int offset = 0;
   int limit = 10;
+  int page = 0;
   bool hasMore = true;
+  String _currentMode = 'all';
+
+  int typeOffset = 0;
+  final int typeLimit = 10;
+  List<Pokemon> typePokemonList = [];
 
   @override
   void initState() {
@@ -44,9 +51,14 @@ class _PokemonListPageState extends State<PokemonListPage> {
   void _onScroll() {
     if (_scrollController.position.pixels >=
             _scrollController.position.maxScrollExtent - 200 &&
+        hasMore &&
         !isLoading &&
-        hasMore) {
-      _loadPokemons();
+        _searchQuery.isEmpty) {
+      if (_currentMode == 'all') {
+        _loadPokemons();
+      } else if (_currentMode == 'type') {
+        _fetchPokemonByType(_typeQuery, loadMore: true);
+      }
     }
   }
 
@@ -81,8 +93,17 @@ class _PokemonListPageState extends State<PokemonListPage> {
     });
   }
 
-  Future<void> _loadPokemons() async {
+  Future<void> _loadPokemons({bool reset = false}) async {
     if (isLoading) return;
+
+    if (reset) {
+      setState(() {
+        offset = 0;
+        pokemonList.clear();
+        hasMore = true;
+      });
+    }
+
     setState(() => isLoading = true);
 
     final url = 'https://pokeapi.co/api/v2/pokemon?offset=$offset&limit=$limit';
@@ -154,6 +175,80 @@ class _PokemonListPageState extends State<PokemonListPage> {
     }
   }
 
+  Future<void> _fetchPokemonByType(String type, {bool loadMore = false}) async {
+    if (isLoading) return;
+
+    if (!loadMore) {
+      setState(() {
+        typeOffset = 0;
+        typePokemonList.clear();
+        hasMore = true;
+      });
+    }
+
+    setState(() => isLoading = true);
+
+    final url = 'https://pokeapi.co/api/v2/type/$type';
+
+    try {
+      final response = await http.get(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final List pokemonEntries = data['pokemon'];
+
+        final total = pokemonEntries.length;
+
+        final start = typeOffset;
+        final end =
+            (typeOffset + typeLimit < total) ? typeOffset + typeLimit : total;
+
+        if (start >= total) {
+          setState(() {
+            hasMore = false;
+          });
+          return;
+        }
+
+        final pageEntries =
+            pokemonEntries
+                .sublist(start, end)
+                .map((entry) => entry['pokemon']['url'])
+                .toList();
+
+        final detailFutures =
+            pageEntries.map((url) async {
+              try {
+                final res = await http.get(Uri.parse(url));
+                if (res.statusCode == 200) {
+                  final jsonData = jsonDecode(res.body);
+                  return Pokemon.fromJson(jsonData);
+                }
+              } catch (e) {
+                print('Error loading details: $e');
+              }
+              return null;
+            }).toList();
+
+        final pokemons = await Future.wait(detailFutures);
+        final loaded = pokemons.whereType<Pokemon>().toList();
+
+        setState(() {
+          typeOffset = end;
+          typePokemonList.addAll(loaded);
+          pokemonList = typePokemonList;
+          hasMore = end < total;
+        });
+      }
+    } catch (e) {
+      print('Error loading type pokemons: $e');
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
   @override
   void dispose() {
     _scrollController.dispose();
@@ -176,13 +271,58 @@ class _PokemonListPageState extends State<PokemonListPage> {
       crossAxisCount = 4;
       childAspectRatio = 1.2;
     }
+
+    final displayedList =
+        _searchQuery.isNotEmpty
+            ? _filteredPokemons
+            : (_typeQuery.isNotEmpty && _typeQuery != 'all')
+            ? pokemonList
+                .where(
+                  (p) =>
+                      p.types?.any(
+                        (type) =>
+                            type.toLowerCase() == _typeQuery.toLowerCase(),
+                      ) ??
+                      false,
+                )
+                .toList()
+            : pokemonList;
+
     return MainAppBar(
       onSearchChanged: (value) {
         setState(() {
           _searchQuery = value;
-          _searchedPokemon(_searchQuery);
+          _filteredPokemons.clear();
         });
+
+        if (_searchQuery.isEmpty) {
+          if (_typeQuery != 'all') {
+            _fetchPokemonByType(_typeQuery);
+          } else {
+            _loadPokemons(reset: true);
+          }
+        } else {
+          _searchedPokemon(_searchQuery);
+        }
       },
+
+      onTypeChanged: (value) {
+        setState(() {
+          _typeQuery = value;
+          _searchQuery = '';
+          _filteredPokemons.clear();
+          _currentMode = value == 'all' ? 'all' : 'type';
+          pokemonList.clear();
+          hasMore = true;
+        });
+
+        if (_typeQuery != 'all') {
+          _fetchPokemonByType(_typeQuery);
+        } else {
+          _loadPokemons(reset: true);
+        }
+      },
+
       title: 'Pokédex',
       body: Column(
         children: [
@@ -198,21 +338,17 @@ class _PokemonListPageState extends State<PokemonListPage> {
                     : GridView.builder(
                       controller: _scrollController,
                       padding: const EdgeInsets.all(8),
+                      shrinkWrap: true,
+                      physics: const AlwaysScrollableScrollPhysics(),
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: crossAxisCount,
                         crossAxisSpacing: 8,
                         mainAxisSpacing: 8,
                         childAspectRatio: childAspectRatio,
                       ),
-                      itemCount:
-                          _searchQuery.isNotEmpty
-                              ? _filteredPokemons.length
-                              : pokemonList.length,
+                      itemCount: displayedList.length,
                       itemBuilder: (context, index) {
-                        final pokemon =
-                            _searchQuery.isNotEmpty
-                                ? _filteredPokemons[index]
-                                : pokemonList[index];
+                        final pokemon = displayedList[index];
                         final isFav = favoritePokemons.any(
                           (p) => p.id == pokemon.id,
                         );

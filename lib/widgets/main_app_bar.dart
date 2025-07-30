@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pokedex/components/pokemon-type_colors.dart';
 import '../pages/pokemon_list_page.dart';
 import '../pages/favorites_page.dart';
 
@@ -6,14 +7,18 @@ class MainAppBar extends StatefulWidget {
   final Widget body;
   final String? title;
   final bool? searchVisible;
+  final bool? typeIconVisible;
   final ValueChanged<String>? onSearchChanged;
+  final ValueChanged<String>? onTypeChanged;
 
   const MainAppBar({
     super.key,
     required this.body,
     this.title,
     this.searchVisible,
+    this.typeIconVisible,
     this.onSearchChanged,
+    this.onTypeChanged,
   });
 
   @override
@@ -22,13 +27,18 @@ class MainAppBar extends StatefulWidget {
 
 class _MainAppBarState extends State<MainAppBar> {
   bool isSearchVisible = true;
+  bool isTypeIconVisible = true;
   bool showSearchBar = false;
+  bool showTypeBar = false;
+  String? selectedType;
+
   final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     isSearchVisible = widget.searchVisible ?? true;
+    isTypeIconVisible = widget.typeIconVisible ?? true;
   }
 
   @override
@@ -48,16 +58,30 @@ class _MainAppBarState extends State<MainAppBar> {
                     fontSize: 30,
                   ),
                 ),
-                isSearchVisible
-                    ? IconButton(
-                      icon: Icon(Icons.search),
-                      onPressed:
-                          () => (setState(() {
-                            widget.onSearchChanged!('');
-                            showSearchBar = !showSearchBar;
-                          })),
-                    )
-                    : SizedBox(),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    isSearchVisible
+                        ? IconButton(
+                          icon: Icon(Icons.search),
+                          onPressed:
+                              () => (setState(() {
+                                widget.onSearchChanged!('');
+                                showSearchBar = !showSearchBar;
+                              })),
+                        )
+                        : SizedBox(),
+                    isTypeIconVisible
+                        ? IconButton(
+                          icon: Icon(Icons.expand_more),
+                          onPressed:
+                              () => (setState(() {
+                                showTypeBar = !showTypeBar;
+                              })),
+                        )
+                        : SizedBox(),
+                  ],
+                ),
               ],
             ),
           ],
@@ -188,6 +212,63 @@ class _MainAppBarState extends State<MainAppBar> {
                   contentPadding: const EdgeInsets.all(8),
                   fillColor: const Color(0xFFE53935),
                 ),
+              ),
+            ),
+
+          if (showTypeBar)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children:
+                    pokemonTypeColors.entries.map((entry) {
+                      final isSelected = selectedType == entry.key;
+
+                      return SizedBox(
+                        width: 90,
+                        height: 36,
+                        child: TextButton(
+                          style: TextButton.styleFrom(
+                            backgroundColor: entry.value,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                              side:
+                                  isSelected
+                                      ? const BorderSide(
+                                        color: Colors.black54,
+                                        width: 2,
+                                      )
+                                      : BorderSide.none,
+                            ),
+                            shadowColor:
+                                isSelected ? Colors.black : Colors.transparent,
+                            elevation: isSelected ? 4 : 0,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              if (selectedType == entry.key) {
+                                selectedType = 'all';
+                              } else {
+                                selectedType = entry.key;
+                              }
+                            });
+                            if (widget.onTypeChanged != null) {
+                              widget.onTypeChanged!(selectedType ?? entry.key);
+                            }
+                          },
+                          child: Text(
+                            entry.key,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ),
+                      );
+                    }).toList(),
               ),
             ),
 

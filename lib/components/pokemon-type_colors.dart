@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 const Map<String, Color> pokemonTypeColors = {
+  'all': Color.fromARGB(255, 0, 0, 0),
   'normal': Color(0xFFA8A77A),
   'fire': Color(0xFFEE8130),
   'water': Color(0xFF6390F0),

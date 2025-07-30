@@ -17,7 +17,10 @@ class FavoritesPage extends StatefulWidget {
 }
 
 class _FavoritesPageState extends State<FavoritesPage> {
+  String _searchQuery = '';
+  String _typeQuery = '';
   List<Pokemon> listPokemons = [];
+  List<Pokemon> _allFavorites = [];
   List<Pokemon> favoritesPokemons = [];
   final ScrollController _scrollController = ScrollController();
 
@@ -40,6 +43,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
 
     setState(() {
       favoritesPokemons = pokemons;
+      _allFavorites = pokemons;
       listPokemons = List.from(pokemons);
     });
   }
@@ -78,8 +82,52 @@ class _FavoritesPageState extends State<FavoritesPage> {
       childAspectRatio = 1.2;
     }
     return MainAppBar(
+      onSearchChanged: (value) {
+        setState(() {
+          _searchQuery = value;
+          _typeQuery = 'all';
+
+          if (_searchQuery.isNotEmpty) {
+            final results =
+                _allFavorites
+                    .where(
+                      (item) => item.name.toLowerCase().contains(
+                        _searchQuery.toLowerCase(),
+                      ),
+                    )
+                    .toList();
+
+            listPokemons = results;
+          } else {
+            listPokemons = List.from(_allFavorites);
+          }
+        });
+      },
+      onTypeChanged: (value) {
+        setState(() {
+          _typeQuery = value;
+          _searchQuery = '';
+
+          if (_typeQuery != 'all') {
+            final results =
+                _allFavorites
+                    .where(
+                      (item) =>
+                          item.types != null &&
+                          item.types!.any(
+                            (type) =>
+                                type.toLowerCase() == _typeQuery.toLowerCase(),
+                          ),
+                    )
+                    .toList();
+
+            listPokemons = results;
+          } else {
+            listPokemons = List.from(_allFavorites);
+          }
+        });
+      },
       title: 'Favorites',
-      searchVisible: false,
       body: Column(
         children: [
           Expanded(

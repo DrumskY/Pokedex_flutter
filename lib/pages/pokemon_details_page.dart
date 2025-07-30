@@ -8,7 +8,7 @@ import '../interface/pokemon.dart' as my_pokemon;
 class PokemonDetailsPage extends StatelessWidget {
   final my_pokemon.Pokemon pokemon;
 
-  const PokemonDetailsPage({Key? key, required this.pokemon}) : super(key: key);
+  const PokemonDetailsPage({super.key, required this.pokemon});
 
   @override
   Widget build(BuildContext context) {
