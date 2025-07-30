@@ -39,17 +39,21 @@ A clean and responsive **Flutter application** that lets users browse a list of 
 ## 📷 Screenshots
 
 List Page:
+
 ![image](image.png)
 ![image](image-3.png)
 ![image](image-1.png)
 
 Favorites Page:
+
 ![image](image-2.png)
 
 Detail Page:
+
 ![image](image-4.png)
 
 Drawer:
+
 ![image](image-5.png)
 
 ## 🧪 Getting Started
